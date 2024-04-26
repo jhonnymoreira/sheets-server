@@ -5,6 +5,12 @@
   "version": "0.1.0",
   "description": "Server infrastructure for Sheets",
   "scripts": {
+    "db:check": "drizzle-kit check:pg",
+    "db:introspect": "drizzle-kit introspect:pg",
+    "db:migration:down": "drizzle-kit down",
+    "db:migration:generate": "drizzle-kit generate:pg",
+    "db:migration:up": "drizzle-kit up:pg",
+    "db:push": "drizzle-kit push:pg",
     "lint": "eslint .",
     "prepare": "husky",
     "prettify": "prettier --write .",
