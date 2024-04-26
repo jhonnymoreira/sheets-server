@@ -5,9 +5,11 @@
   "version": "0.1.0",
   "description": "Server infrastructure for Sheets",
   "scripts": {
+    "lint": "eslint .",
     "prepare": "husky",
-    "start:watch": "tsx --watch src/index.ts",
-    "test": "vitest"
+    "prettify": "prettier --write .",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "author": "Jhonny Moreira <jobs at jhonny dot codes>",
   "dependencies": {
@@ -25,6 +27,9 @@
     "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^20.12.7",
     "@types/pg": "^8.11.5",
+    "aws-cdk": "^2.139.0",
+    "aws-cdk-lib": "^2.139.0",
+    "constructs": "^10.3.0",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.20.17",
     "eslint": "^9.1.1",

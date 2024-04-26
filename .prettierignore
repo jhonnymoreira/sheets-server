@@ -1,5 +1,3 @@
+.husky/
 cdk.out/
 node_modules/
-
-.env
-!.env.example

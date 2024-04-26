@@ -9,11 +9,15 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         project: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
   },
   {
     files: ['*.js'],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    ignores: ['.husky', 'cdk.out/'],
   }
 );
