@@ -5,8 +5,9 @@
   "version": "0.1.0",
   "description": "Server infrastructure for Sheets",
   "scripts": {
+    "lint": "eslint .",
     "prepare": "husky",
-    "start:watch": "tsx --watch src/index.ts",
+    "prettify": "prettier --write .",
     "test": "vitest"
   },
   "author": "Jhonny Moreira <jobs at jhonny dot codes>",
