@@ -1,3 +1,5 @@
 .husky/
 cdk.out/
 node_modules/
+
+pnpm-lock.yaml
