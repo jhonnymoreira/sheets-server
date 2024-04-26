@@ -15,5 +15,8 @@ export default tseslint.config(
   {
     files: ['*.js'],
     ...tseslint.configs.disableTypeChecked,
+  },
+  {
+    ignores: ['.husky', 'cdk.out/'],
   }
 );
