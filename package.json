@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "prepare": "husky",
     "prettify": "prettier --write .",
-    "test": "vitest"
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "author": "Jhonny Moreira <jobs at jhonny dot codes>",
   "dependencies": {
