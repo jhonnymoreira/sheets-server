@@ -7,7 +7,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["vitest/globals"]
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules/", "dist/", ".husky/", "*.js"]
