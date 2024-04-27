@@ -15,7 +15,8 @@
     "prepare": "husky",
     "prettify": "prettier --write .",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
   },
   "author": "Jhonny Moreira <jobs at jhonny dot codes>",
   "dependencies": {
