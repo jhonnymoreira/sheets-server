@@ -18,6 +18,6 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
   {
-    ignores: ['.husky', 'cdk.out/'],
+    ignores: ['.husky', 'cdk.out/', 'coverage/'],
   }
 );
