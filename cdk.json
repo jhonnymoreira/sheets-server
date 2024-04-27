@@ -3,15 +3,26 @@
   "watch": {
     "include": ["**"],
     "exclude": [
+      ".git/",
+      ".husky/",
+      "coverage/",
       "node_modules/",
       "src/db/migrations/",
       "tests/",
-      "cdk*.json",
       "**/*.d.ts",
       "**/*.js",
+      ".env*",
+      "cdk*.json",
+      ".editorconfig",
+      ".prettierignore",
+      "drizzle.config.ts",
+      "eslint.config.js",
+      "lint-staged.config.js",
       "pnpm-lock.yaml",
+      "prettier.config.js",
       "README.md",
-      "tsconfig.json"
+      "tsconfig.json",
+      "vitest.config.ts"
     ]
   },
   "context": {
