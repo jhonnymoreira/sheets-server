@@ -8,6 +8,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "resolveJsonModule": true,
     "types": ["vitest/globals"]
   },
   "include": ["**/*.ts"],
