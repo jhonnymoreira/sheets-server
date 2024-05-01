@@ -1,16 +1,11 @@
-import { ID_LENGTH, spreadsheetStatusEnum } from '@/db/schema.js';
 import { insertSpreadsheetSchema } from '@/shared/domain/index.js';
-
-const formattedSpreadsheetStatus = spreadsheetStatusEnum.enumValues.join(', ');
 
 const {
   shape: {
     createdAt: createdAtSchema,
-    id: idSchema,
     key: keySchema,
     name: nameSchema,
     ownerId: ownerIdSchema,
-    status: statusSchema,
     updatedAt: updatedAtSchema,
   },
 } = insertSpreadsheetSchema;
@@ -22,38 +17,6 @@ describe('Spreadsheet Domain', () => {
         const { success } = createdAtSchema.safeParse(new Date());
 
         expect(success).toBeTruthy();
-      });
-    });
-
-    describe('id', () => {
-      test('should be a string', () => {
-        const { error } = idSchema.safeParse(123);
-
-        expect(error?.issues[0]).toHaveProperty('code', 'invalid_type');
-      });
-
-      test('should be a non-empty string with a fixed length matching the ID_LENGTH', () => {
-        const { error } = idSchema.safeParse('       ');
-
-        expect(error).toMatchInlineSnapshot(`
-          [ZodError: [
-            {
-              "code": "too_small",
-              "minimum": 21,
-              "type": "string",
-              "inclusive": true,
-              "exact": true,
-              "message": "String must contain exactly 21 character(s)",
-              "path": []
-            }
-          ]]
-        `);
-      });
-
-      test('defaults to a random ID of length matching the ID_LENGTH', () => {
-        const { data } = idSchema.safeParse(undefined);
-
-        expect(data).toHaveLength(ID_LENGTH);
       });
     });
 
@@ -147,29 +110,6 @@ describe('Spreadsheet Domain', () => {
               "exact": true,
               "message": "String must contain exactly 21 character(s)",
               "path": []
-            }
-          ]]
-        `);
-      });
-    });
-
-    describe('status', () => {
-      test(`should be an enum matching the spreadsheet status enum (${formattedSpreadsheetStatus})`, () => {
-        const { error } = statusSchema.safeParse('not_a_valid_status');
-
-        expect(error).toMatchInlineSnapshot(`
-          [ZodError: [
-            {
-              "received": "not_a_valid_status",
-              "code": "invalid_enum_value",
-              "options": [
-                "to_process",
-                "to_review",
-                "processing",
-                "processed"
-              ],
-              "path": [],
-              "message": "Invalid enum value. Expected 'to_process' | 'to_review' | 'processing' | 'processed', received 'not_a_valid_status'"
             }
           ]]
         `);

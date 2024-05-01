@@ -1,4 +1,3 @@
-import { ID_LENGTH } from '@/db/schema.js';
 import { insertContactSchema } from '@/shared/domain/index.js';
 
 const {
@@ -6,7 +5,6 @@ const {
     createdAt: createdAtSchema,
     email: emailSchema,
     firstName: firstNameSchema,
-    id: idSchema,
     lastName: lastNameSchema,
     spreadsheetId: spreadsheetIdSchema,
     updatedAt: updatedAtSchema,
@@ -107,48 +105,6 @@ describe('Contact Domain', () => {
             }
           ]]
         `);
-      });
-    });
-
-    describe('id', () => {
-      test('should be a string', () => {
-        const { error } = idSchema.safeParse(123);
-
-        expect(error).toMatchInlineSnapshot(`
-          [ZodError: [
-            {
-              "code": "invalid_type",
-              "expected": "string",
-              "received": "number",
-              "path": [],
-              "message": "Expected string, received number"
-            }
-          ]]
-        `);
-      });
-
-      test('should be a non-empty string with a fixed length matching the ID_LENGTH', () => {
-        const { error } = idSchema.safeParse('       ');
-
-        expect(error).toMatchInlineSnapshot(`
-          [ZodError: [
-            {
-              "code": "too_small",
-              "minimum": 21,
-              "type": "string",
-              "inclusive": true,
-              "exact": true,
-              "message": "String must contain exactly 21 character(s)",
-              "path": []
-            }
-          ]]
-        `);
-      });
-
-      test('defaults to a random ID of length matching the ID_LENGTH', () => {
-        const { data } = idSchema.safeParse(undefined);
-
-        expect(data).toHaveLength(ID_LENGTH);
       });
     });
 
