@@ -107,7 +107,7 @@ export class LambdaConstruct extends Construct {
         ),
         functionName: `spreadsheets-process-spreadsheet-${environment}`,
         handler: 'processSpreadsheet',
-        timeout: Duration.minutes(1),
+        timeout: Duration.seconds(20),
         memorySize: 2048,
       }
     );
