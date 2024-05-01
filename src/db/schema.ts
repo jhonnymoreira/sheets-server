@@ -1,18 +1,15 @@
-import {
-  index,
-  pgEnum,
-  pgTable,
-  timestamp,
-  varchar,
-} from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const ID_LENGTH = 21;
 
 export const contacts = pgTable(
   'contacts',
   {
-    id: varchar('id', { length: ID_LENGTH }).primaryKey(),
-    email: varchar('email', { length: 320 }).notNull(),
+    id: varchar('id', { length: ID_LENGTH })
+      .primaryKey()
+      .$defaultFn(() => nanoid(ID_LENGTH)),
+    email: varchar('email', { length: 256 }).notNull(),
     firstName: varchar('first_name', { length: 50 }).notNull(),
     lastName: varchar('last_name', { length: 50 }),
     createdAt: timestamp('created_at', { withTimezone: true })
@@ -34,20 +31,14 @@ export const contacts = pgTable(
   }
 );
 
-export const spreadsheetStatusEnum = pgEnum('spreadsheet_status', [
-  'to_process',
-  'to_review',
-  'processing',
-  'processed',
-]);
-
 export const spreadsheets = pgTable(
   'spreadsheets',
   {
-    id: varchar('id', { length: ID_LENGTH }).primaryKey(),
+    id: varchar('id', { length: ID_LENGTH })
+      .primaryKey()
+      .$defaultFn(() => nanoid(ID_LENGTH)),
     name: varchar('name', { length: 64 }).notNull(),
     key: varchar('key', { length: ID_LENGTH }).notNull().unique(),
-    status: spreadsheetStatusEnum('status').notNull().default('to_process'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -68,9 +59,11 @@ export const spreadsheets = pgTable(
 );
 
 export const users = pgTable('users', {
-  id: varchar('id', { length: ID_LENGTH }).primaryKey(),
-  email: varchar('email', { length: 320 }).notNull().unique(),
-  githubHandler: varchar('github_handler', { length: 39 }).notNull().unique(),
+  id: varchar('id', { length: ID_LENGTH })
+    .primaryKey()
+    .$defaultFn(() => nanoid(ID_LENGTH)),
+  email: varchar('email', { length: 256 }).notNull().unique(),
+  externalId: text('external_id').notNull().unique(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
