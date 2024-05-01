@@ -111,7 +111,7 @@ export class StatelessStack extends Stack {
     );
     lambdas.spreadsheets.insertSpreadsheetContacts.addEventSource(
       new SqsEventSource(spreadsheetsProcessedContactsQueueRef, {
-        maxConcurrency: 2,
+        maxConcurrency: 10,
       })
     );
   }
