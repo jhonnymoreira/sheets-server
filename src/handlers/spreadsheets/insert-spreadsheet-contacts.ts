@@ -9,7 +9,9 @@ export const insertSpreadsheetContacts = async (event: SQSEvent) => {
     (batches, record) => {
       const batch = JSON.parse(record.body) as ProcessedContactBatch;
 
-      return [...batches, batch];
+      batches.push(batch);
+
+      return batches;
     },
     []
   );
@@ -28,7 +30,13 @@ export const insertSpreadsheetContacts = async (event: SQSEvent) => {
 
   const failedInserts = insertedContactsBatches.filter(
     ({ status }) => status === 'rejected'
-  ).length;
+  );
+
+  failedInserts.forEach((result) => {
+    if (result.status === 'rejected') {
+      logger.error({ failedInsertionResult: result });
+    }
+  });
 
   logger.info({
     failedInserts,

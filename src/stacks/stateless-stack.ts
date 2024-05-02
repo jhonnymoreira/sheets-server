@@ -68,8 +68,8 @@ export class StatelessStack extends Stack {
       lambdas.spreadsheets.processSpreadsheet,
     ].forEach((lambda) => {
       lambda.addEnvironment(
-        'DATABASE_CREDENTIALS_ARN',
-        sheetsDatabaseCredentialsArn
+        'DATABASE_CONNECTION_URL',
+        sheetsDatabaseCredentialsRef.secretValue.unsafeUnwrap()
       );
       sheetsDatabaseCredentialsRef.grantRead(lambda);
     });
@@ -111,7 +111,7 @@ export class StatelessStack extends Stack {
     );
     lambdas.spreadsheets.insertSpreadsheetContacts.addEventSource(
       new SqsEventSource(spreadsheetsProcessedContactsQueueRef, {
-        maxConcurrency: 2,
+        maxConcurrency: 10,
       })
     );
   }

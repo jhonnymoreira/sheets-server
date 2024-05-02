@@ -16,6 +16,6 @@ const { DATABASE_CONNECTION_URL } = getEnvironmentVariables(
   })
 );
 
-const pgClient = postgres(DATABASE_CONNECTION_URL);
+const pgClient = postgres(DATABASE_CONNECTION_URL, { prepare: false });
 const db = drizzle(pgClient);
 export { db };

@@ -1,4 +1,12 @@
-import { index, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import {
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  varchar,
+} from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const ID_LENGTH = 21;
@@ -24,6 +32,12 @@ export const contacts = pgTable(
   },
   (table) => {
     return {
+      uniq: unique().on(
+        table.email,
+        table.firstName,
+        table.lastName,
+        table.spreadsheetId
+      ),
       contactsSpreadsheetIdIdex: index('contacts_spreadsheet_id_idx').on(
         table.spreadsheetId
       ),
@@ -71,3 +85,19 @@ export const users = pgTable('users', {
     .notNull()
     .defaultNow(),
 });
+
+export const contactsBySpreadsheetsCount = pgTable(
+  'contacts_count_by_spreadsheets',
+  {
+    spreadsheetId: varchar('spreadsheet_id', { length: ID_LENGTH })
+      .primaryKey()
+      .$defaultFn(() => nanoid(ID_LENGTH))
+      .references(() => spreadsheets.id),
+    count: integer('count').notNull(),
+  },
+  (table) => {
+    return {
+      spreadsheetIdIdx: index().on(table.spreadsheetId),
+    };
+  }
+);

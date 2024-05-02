@@ -1,0 +1,252 @@
+{
+  "id": "3820f79a-7d7a-4a92-86be-d83f9973ad28",
+  "prevId": "23b8dd1f-d382-4212-8dc0-0428c90cce70",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "contacts": {
+      "name": "contacts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(21)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "spreadsheet_id": {
+          "name": "spreadsheet_id",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "contacts_spreadsheet_id_idx": {
+          "name": "contacts_spreadsheet_id_idx",
+          "columns": ["spreadsheet_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "contacts_spreadsheet_id_spreadsheets_id_fk": {
+          "name": "contacts_spreadsheet_id_spreadsheets_id_fk",
+          "tableFrom": "contacts",
+          "tableTo": "spreadsheets",
+          "columnsFrom": ["spreadsheet_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "contacts_email_first_name_last_name_spreadsheet_id_unique": {
+          "name": "contacts_email_first_name_last_name_spreadsheet_id_unique",
+          "nullsNotDistinct": false,
+          "columns": ["email", "first_name", "last_name", "spreadsheet_id"]
+        }
+      }
+    },
+    "contacts_count_by_spreadsheets": {
+      "name": "contacts_count_by_spreadsheets",
+      "schema": "",
+      "columns": {
+        "spreadsheet_id": {
+          "name": "spreadsheet_id",
+          "type": "varchar(21)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "contacts_count_by_spreadsheets_spreadsheet_id_index": {
+          "name": "contacts_count_by_spreadsheets_spreadsheet_id_index",
+          "columns": ["spreadsheet_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "contacts_count_by_spreadsheets_spreadsheet_id_spreadsheets_id_fk": {
+          "name": "contacts_count_by_spreadsheets_spreadsheet_id_spreadsheets_id_fk",
+          "tableFrom": "contacts_count_by_spreadsheets",
+          "tableTo": "spreadsheets",
+          "columnsFrom": ["spreadsheet_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "spreadsheets": {
+      "name": "spreadsheets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(21)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "spreadsheets_owner_id_idx": {
+          "name": "spreadsheets_owner_id_idx",
+          "columns": ["owner_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "spreadsheets_owner_id_users_id_fk": {
+          "name": "spreadsheets_owner_id_users_id_fk",
+          "tableFrom": "spreadsheets",
+          "tableTo": "users",
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "spreadsheets_key_unique": {
+          "name": "spreadsheets_key_unique",
+          "nullsNotDistinct": false,
+          "columns": ["key"]
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(21)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": ["email"]
+        },
+        "users_external_id_unique": {
+          "name": "users_external_id_unique",
+          "nullsNotDistinct": false,
+          "columns": ["external_id"]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
