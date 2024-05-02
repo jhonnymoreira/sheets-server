@@ -68,8 +68,8 @@ export class StatelessStack extends Stack {
       lambdas.spreadsheets.processSpreadsheet,
     ].forEach((lambda) => {
       lambda.addEnvironment(
-        'DATABASE_CREDENTIALS_ARN',
-        sheetsDatabaseCredentialsArn
+        'DATABASE_CONNECTION_URL',
+        sheetsDatabaseCredentialsRef.secretValue.unsafeUnwrap()
       );
       sheetsDatabaseCredentialsRef.grantRead(lambda);
     });
