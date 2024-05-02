@@ -1,6 +1,6 @@
 import { SQSEvent } from 'aws-lambda';
 import { contacts } from '@/db/schema.js';
-import { db } from '@/shared/clients/drizzle.js';
+import { db } from '@/shared/clients/index.js';
 import { ProcessedContactBatch } from '@/shared/types/events/index.js';
 import { logger } from '@/shared/utils/index.js';
 

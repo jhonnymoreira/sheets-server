@@ -15,6 +15,7 @@ export class LambdaConstruct extends Construct {
     authorizer: NodejsFunction;
     spreadsheets: {
       getSpreadsheet: NodejsFunction;
+      getSpreadsheets: NodejsFunction;
       getUploadURL: NodejsFunction;
       insertSpreadsheetContacts: NodejsFunction;
       processSpreadsheet: NodejsFunction;
@@ -68,6 +69,20 @@ export class LambdaConstruct extends Construct {
       }
     );
 
+    const getSpreadsheets = new NodejsFunction(
+      this,
+      `spreadsheets-get-spreadsheets-${environment}`,
+      {
+        ...DEFAULT_LAMBDA_OPTIONS,
+        entry: path.resolve(
+          import.meta.dirname,
+          '../handlers/spreadsheets/get-spreadsheets.ts'
+        ),
+        functionName: `spreadsheets-get-spreadsheets-${environment}`,
+        handler: 'getSpreadsheets',
+      }
+    );
+
     const getUploadURL = new NodejsFunction(
       this,
       `spreadsheets-get-upload-url-${environment}`,
@@ -116,6 +131,7 @@ export class LambdaConstruct extends Construct {
       authorizer: authorizer,
       spreadsheets: {
         getSpreadsheet,
+        getSpreadsheets,
         getUploadURL,
         insertSpreadsheetContacts,
         processSpreadsheet,

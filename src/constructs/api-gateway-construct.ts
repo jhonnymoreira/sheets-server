@@ -17,6 +17,7 @@ export type APIGatewayConstructProps = WithAppProps<{
     spreadsheets: {
       getUploadURL: NodejsFunction;
       getSpreadsheet: NodejsFunction;
+      getSpreadsheets: NodejsFunction;
     };
   };
 }>;
@@ -51,23 +52,26 @@ export class APIGatewayConstruct extends Construct {
 
     const root = this.APIGateway.root;
 
-    /**
-     * authorizer -> POST /spreadhseets/get-upload-url
-     * authorizer -> GET  /spreadsheets/{id}
-     * authorizer -> POST /user
-     */
-
     const spreadsheets = root.addResource('spreadsheets', {
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
       },
     });
 
+    spreadsheets.addMethod(
+      'GET',
+      new LambdaIntegration(lambdas.spreadsheets.getSpreadsheets),
+      {
+        authorizationType: AuthorizationType.CUSTOM,
+        authorizer,
+      }
+    );
+
     spreadsheets
-      .addResource('get-upload-url')
+      .addResource('{id}')
       .addMethod(
-        'POST',
-        new LambdaIntegration(lambdas.spreadsheets.getUploadURL),
+        'GET',
+        new LambdaIntegration(lambdas.spreadsheets.getSpreadsheet),
         {
           authorizationType: AuthorizationType.CUSTOM,
           authorizer,
@@ -75,10 +79,10 @@ export class APIGatewayConstruct extends Construct {
       );
 
     spreadsheets
-      .addResource('{id}')
+      .addResource('get-upload-url')
       .addMethod(
-        'GET',
-        new LambdaIntegration(lambdas.spreadsheets.getSpreadsheet),
+        'POST',
+        new LambdaIntegration(lambdas.spreadsheets.getUploadURL),
         {
           authorizationType: AuthorizationType.CUSTOM,
           authorizer,
