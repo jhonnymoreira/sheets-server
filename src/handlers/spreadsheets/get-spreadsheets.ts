@@ -27,7 +27,7 @@ export const getSpreadsheets = async (
     return createResponse({
       statusCode: HTTPStatus.OK,
       body: {
-        spreadsheets: spreadsheetsData,
+        data: spreadsheetsData,
       },
     });
   } catch (error) {
@@ -35,7 +35,9 @@ export const getSpreadsheets = async (
     return createResponse({
       statusCode: HTTPStatus.INTERNAL_SERVER_ERROR,
       body: {
-        message: 'Internal server error',
+        error: {
+          message: 'Internal server error',
+        },
       },
     });
   }

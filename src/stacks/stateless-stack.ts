@@ -63,15 +63,16 @@ export class StatelessStack extends Stack {
     );
 
     [
+      lambdas.authorizer,
       lambdas.spreadsheets.getSpreadsheet,
-      lambdas.spreadsheets.insertSpreadsheetContacts,
+      lambdas.spreadsheets.getSpreadsheets,
       lambdas.spreadsheets.processSpreadsheet,
+      lambdas.spreadsheets.insertSpreadsheetContacts,
     ].forEach((lambda) => {
       lambda.addEnvironment(
         'DATABASE_CONNECTION_URL',
         sheetsDatabaseCredentialsRef.secretValue.unsafeUnwrap()
       );
-      sheetsDatabaseCredentialsRef.grantRead(lambda);
     });
 
     const spreadsheetsToProcessQueueArn = Fn.importValue(

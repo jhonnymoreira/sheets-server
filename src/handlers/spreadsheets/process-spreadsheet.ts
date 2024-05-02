@@ -5,7 +5,7 @@ import get from 'lodash.get';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 import { ID_LENGTH, spreadsheets } from '@/db/schema.js';
-import { db } from '@/shared/clients/drizzle.js';
+import { db } from '@/shared/clients/index.js';
 import {
   getEnvironmentVariables,
   logger,

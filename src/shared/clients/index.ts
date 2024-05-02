@@ -1,1 +1,1 @@
-export { createDrizzleClient } from './drizzle.js';
+export { db } from './drizzle.js';
