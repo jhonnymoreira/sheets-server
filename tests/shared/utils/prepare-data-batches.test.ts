@@ -55,7 +55,7 @@ describe('prepareDataBatches', () => {
             prepareDataBatches(data, ownership, { chunkSize: -1 });
           } catch (error) {
             expect(error).toMatchInlineSnapshot(
-              `[Error: Chunk size must be greater than 0]`
+              `[Error: chunkSize must be greater than 0]`
             );
           }
         });
