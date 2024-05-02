@@ -47,41 +47,36 @@ export const getUploadURL = async (
     const { fields, url } = await createPresignedPost(s3Client, {
       Bucket: BUCKET_NAME,
       Key: key,
+      /**
+       * The expiration time is set to 10 minutes to avoid the token
+       * expiration when the user network is slow.
+       */
       Expires: 10 * 60, // 10 minutes,
       Fields: {
         'x-amz-meta-display-name': body.data.displayName,
+        'x-amz-meta-owner-id': event.requestContext.authorizer.userId,
         'x-amz-meta-size': body.data.fileSize.toString(),
         'x-amz-meta-type': 'text/csv',
-        'x-amz-meta-user-email': event.requestContext.authorizer.email,
-        'x-amz-meta-user-external-id':
-          event.requestContext.authorizer.externalId,
       },
       Conditions: [
         { bucket: BUCKET_NAME },
         { key },
         { 'x-amz-meta-display-name': body.data.displayName },
+        { 'x-amz-meta-owner-id': event.requestContext.authorizer.userId },
         { 'x-amz-meta-size': body.data.fileSize.toString() },
         { 'x-amz-meta-type': 'text/csv' },
-        { 'x-amz-meta-user-email': event.requestContext.authorizer.email },
-        {
-          'x-amz-meta-user-external-id':
-            event.requestContext.authorizer.externalId,
-        },
       ],
     });
 
-    logger.info({ fields, url });
+    logger.debug({ fields, url });
 
     return createResponse({
       statusCode: HTTPStatus.CREATED,
       body: {
-        url,
-        fields: Object.fromEntries(
-          Object.entries(fields).map(([key, value]) => [
-            key.toLowerCase(),
-            value,
-          ])
-        ),
+        data: {
+          url,
+          fields,
+        },
       },
     });
   } catch (error) {
@@ -89,7 +84,9 @@ export const getUploadURL = async (
     return createResponse({
       statusCode: HTTPStatus.INTERNAL_SERVER_ERROR,
       body: {
-        message: 'Internal server error',
+        error: {
+          message: 'Internal server error',
+        },
       },
     });
   }

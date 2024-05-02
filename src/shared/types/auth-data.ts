@@ -1,4 +1,3 @@
 export type AuthData = {
-  email: string;
-  externalId: string;
+  userId: string;
 };
