@@ -2,6 +2,7 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { S3Event, S3EventRecord, SQSEvent } from 'aws-lambda';
 import get from 'lodash.get';
+import { nanoid } from 'nanoid';
 import { z } from 'zod';
 import { spreadsheets, users } from '@/db/schema.js';
 import { db } from '@/shared/clients/drizzle.js';
@@ -80,6 +81,7 @@ export const processSpreadsheet = async (event: SQSEvent) => {
     .onConflictDoUpdate({
       target: users.email,
       set: {
+        externalId: parsedMetadata.externalId,
         email: parsedMetadata.email,
       },
     })
@@ -99,6 +101,7 @@ export const processSpreadsheet = async (event: SQSEvent) => {
   const contacts = await processContactsCSV(csvContent);
 
   const objectKey = object.key.replace('to-process/', '').replace('.csv', '');
+  logger.debug({ objectKey });
   const [spreadsheet] = await db
     .insert(spreadsheets)
     .values({
@@ -108,7 +111,8 @@ export const processSpreadsheet = async (event: SQSEvent) => {
     })
     .returning({
       id: spreadsheets.id,
-    });
+    })
+    .onConflictDoNothing({ target: spreadsheets.key });
 
   if (!spreadsheet) {
     logger.error('Unable to get spreadsheet', { parsedMetadata, user });
@@ -128,14 +132,25 @@ export const processSpreadsheet = async (event: SQSEvent) => {
     }
   );
 
-  await Promise.allSettled(
+  const batchesSent = await Promise.allSettled(
     dataBatches.map(async (data) => {
       const sendMessageCommand = new SendMessageCommand({
         QueueUrl: PROCESSED_CONTACTS_QUEUE_URL,
         MessageBody: data,
+        MessageDeduplicationId: nanoid(),
+        MessageGroupId: spreadsheet.id,
       });
 
       await sqsClient.send(sendMessageCommand);
     })
   );
+
+  const failedBatches = batchesSent.filter(
+    ({ status }) => status === 'rejected'
+  ).length;
+
+  logger.info({
+    successfulBatches: batchesSent.length - failedBatches,
+    failedBatches,
+  });
 };
