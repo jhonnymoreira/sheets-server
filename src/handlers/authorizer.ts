@@ -1,6 +1,8 @@
 import type { APIGatewayRequestAuthorizerHandler } from 'aws-lambda';
+import { and, eq } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { type AuthData } from '@/shared/types/index.js';
+import { users } from '@/db/schema.js';
+import { db } from '@/shared/clients/index.js';
 import { generateAuthorizationPolicy, logger } from '@/shared/utils/index.js';
 
 const JWKS = createRemoteJWKSet(
@@ -8,7 +10,10 @@ const JWKS = createRemoteJWKSet(
 );
 
 type JWTPayload = {
-  data: AuthData;
+  data: {
+    email: string;
+    externalId: string;
+  };
 };
 
 export const authorizer: APIGatewayRequestAuthorizerHandler = async (event) => {
@@ -20,14 +25,44 @@ export const authorizer: APIGatewayRequestAuthorizerHandler = async (event) => {
       payload: { data },
     } = await jwtVerify<JWTPayload>(token, JWKS);
 
-    logger.info({ data });
+    /**
+     * Workaround to keep the users table in sync with the auth provider.
+     */
+    let userId: string | undefined = undefined;
+    const [selectedUser] = await db
+      .select({
+        id: users.id,
+      })
+      .from(users)
+      .where(
+        and(eq(users.email, data.email), eq(users.externalId, data.externalId))
+      )
+      .limit(1);
+    userId = selectedUser?.id;
+
+    if (!userId) {
+      const [insertedUser] = await db
+        .insert(users)
+        .values({
+          email: data.email,
+          externalId: data.externalId,
+        })
+        .returning({
+          id: users.id,
+        });
+      userId = insertedUser?.id;
+    }
+
+    if (!userId) {
+      logger.error({ data });
+      throw new Error('Unable to retrieve user');
+    }
 
     return {
       principalId: data.email,
       policyDocument: generateAuthorizationPolicy(event.methodArn, true),
       context: {
-        email: data.email,
-        externalId: data.externalId,
+        userId,
       },
     };
   } catch (error) {

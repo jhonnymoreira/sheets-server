@@ -4,7 +4,7 @@ import { S3Event, S3EventRecord, SQSEvent } from 'aws-lambda';
 import get from 'lodash.get';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
-import { spreadsheets, users } from '@/db/schema.js';
+import { ID_LENGTH, spreadsheets } from '@/db/schema.js';
 import { db } from '@/shared/clients/drizzle.js';
 import {
   getEnvironmentVariables,
@@ -59,55 +59,26 @@ export const processSpreadsheet = async (event: SQSEvent) => {
   const parsedMetadata = parseS3ObjectMetadata(
     {
       displayName: get(Metadata, 'display-name', ''),
-      email: get(Metadata, 'user-email', ''),
-      externalId: get(Metadata, 'user-external-id', ''),
+      ownerId: get(Metadata, 'owner-id', ''),
     },
     z.object({
       displayName: z.string().min(1).max(64),
-      email: z.string().trim().min(1),
-      externalId: z.string().trim().min(1),
+      ownerId: z.string().trim().length(ID_LENGTH),
     })
   );
-
-  /**
-   * Workaround to keep the users table in sync with the auth provider.
-   */
-  const [user] = await db
-    .insert(users)
-    .values({
-      externalId: parsedMetadata.externalId,
-      email: parsedMetadata.email,
-    })
-    .onConflictDoUpdate({
-      target: users.email,
-      set: {
-        externalId: parsedMetadata.externalId,
-        email: parsedMetadata.email,
-      },
-    })
-    .returning({
-      id: users.id,
-      externalId: users.externalId,
-    });
-
-  if (!user) {
-    logger.error('Unable to get user', { parsedMetadata });
-    return;
-  }
-
-  logger.debug({ user });
 
   const csvContent = await Body.transformToString('utf-8');
   const contacts = await processContactsCSV(csvContent);
 
   const objectKey = object.key.replace('to-process/', '').replace('.csv', '');
   logger.debug({ objectKey });
+
   const [spreadsheet] = await db
     .insert(spreadsheets)
     .values({
       key: objectKey,
       name: parsedMetadata.displayName,
-      ownerId: user.id,
+      ownerId: parsedMetadata.ownerId,
     })
     .returning({
       id: spreadsheets.id,
@@ -115,16 +86,15 @@ export const processSpreadsheet = async (event: SQSEvent) => {
     .onConflictDoNothing({ target: spreadsheets.key });
 
   if (!spreadsheet) {
-    logger.error('Unable to get spreadsheet', { parsedMetadata, user });
+    logger.error('Unable to get spreadsheet', { parsedMetadata });
     return;
   }
-
   logger.debug({ spreadsheet });
 
   const dataBatches = prepareDataBatches(
     contacts,
     {
-      ownerId: user.id,
+      ownerId: parsedMetadata.ownerId,
       spreadsheetId: spreadsheet.id,
     },
     {
