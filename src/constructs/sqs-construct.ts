@@ -1,5 +1,5 @@
 import { CfnOutput } from 'aws-cdk-lib';
-import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { DeduplicationScope, Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import { AppProps } from '@/shared/types/index.js';
 
@@ -52,7 +52,10 @@ export class SQSConstruct extends Construct {
       this,
       `${app.name}-processed-contacts-dlq-${app.environment}`,
       {
-        queueName: `${app.name}-processed-contacts-dlq-${app.environment}`,
+        queueName: `${app.name}-processed-contacts-dlq-${app.environment}.fifo`,
+        fifo: true,
+        deduplicationScope: DeduplicationScope.MESSAGE_GROUP,
+        contentBasedDeduplication: true,
       }
     );
 
@@ -64,7 +67,10 @@ export class SQSConstruct extends Construct {
           maxReceiveCount: 3,
           queue: spreadsheetsProcessedContactsDLQ,
         },
-        queueName: `${app.name}-processed-contacts-queue-${app.environment}`,
+        queueName: `${app.name}-processed-contacts-queue-${app.environment}.fifo`,
+        fifo: true,
+        deduplicationScope: DeduplicationScope.MESSAGE_GROUP,
+        contentBasedDeduplication: true,
       }
     );
 
