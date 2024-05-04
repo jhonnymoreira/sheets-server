@@ -52,11 +52,7 @@ export class APIGatewayConstruct extends Construct {
 
     const root = this.APIGateway.root;
 
-    const spreadsheets = root.addResource('spreadsheets', {
-      defaultCorsPreflightOptions: {
-        allowOrigins: Cors.ALL_ORIGINS,
-      },
-    });
+    const spreadsheets = root.addResource('spreadsheets');
 
     spreadsheets.addMethod(
       'GET',

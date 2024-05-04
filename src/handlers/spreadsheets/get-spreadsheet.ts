@@ -56,6 +56,14 @@ export const getSpreadsheet = async (
     const { id: spreadsheetId } = pathParametersValidation.data;
     const { itemsPerPage, page: currentPage } = paginationValidation.data;
 
+    const spreadsheetNameQuery = db
+      .select({
+        name: spreadsheets.name,
+      })
+      .from(spreadsheets)
+      .where(eq(spreadsheets.id, spreadsheetId))
+      .limit(1);
+
     const spreadsheetContactsQuery = db
       .select({
         id: contacts.id,
@@ -83,10 +91,12 @@ export const getSpreadsheet = async (
       .where(eq(contactsBySpreadsheetsCount.spreadsheetId, spreadsheetId))
       .limit(1);
 
-    const [spreadsheetContacts, contactsTotal] = await Promise.all([
-      spreadsheetContactsQuery,
-      contactsTotalQuery,
-    ]);
+    const [contactsTotal, spreadsheetContacts, spreadsheetName] =
+      await Promise.all([
+        contactsTotalQuery,
+        spreadsheetContactsQuery,
+        spreadsheetNameQuery,
+      ]);
 
     const total = get(contactsTotal, '[0].count', 0);
     const lastPage = Math.ceil(total / itemsPerPage);
@@ -94,13 +104,14 @@ export const getSpreadsheet = async (
     return createResponse({
       statusCode: HTTPStatus.OK,
       body: {
-        message: {
-          data: spreadsheetContacts,
-          currentPage,
-          itemsPerPage,
-          lastPage,
-          total,
-        } satisfies Paginated<(typeof spreadsheetContacts)[number]>,
+        data: spreadsheetContacts,
+        currentPage,
+        itemsPerPage,
+        lastPage,
+        total,
+        spreadsheetName: spreadsheetName[0]!.name,
+      } satisfies Paginated<(typeof spreadsheetContacts)[number]> & {
+        spreadsheetName: string;
       },
     });
   } catch (error) {
