@@ -52,6 +52,10 @@ export class LambdaConstruct extends Construct {
         entry: path.resolve(import.meta.dirname, '../handlers/authorizer.ts'),
         functionName: `api-gateway-authorizer-${environment}`,
         handler: 'authorizer',
+        environment: {
+          ...DEFAULT_LAMBDA_OPTIONS.environment,
+          JWK_URL: 'https://clerk.jhonny.codes/.well-known/jwks.json',
+        },
       }
     );
 

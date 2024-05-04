@@ -1,13 +1,14 @@
 import type { APIGatewayRequestAuthorizerHandler } from 'aws-lambda';
 import { and, eq } from 'drizzle-orm';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { z } from 'zod';
 import { users } from '@/db/schema.js';
 import { db } from '@/shared/clients/index.js';
-import { generateAuthorizationPolicy, logger } from '@/shared/utils/index.js';
-
-const JWKS = createRemoteJWKSet(
-  new URL('https://stirred-mustang-79.clerk.accounts.dev/.well-known/jwks.json')
-);
+import {
+  generateAuthorizationPolicy,
+  getEnvironmentVariables,
+  logger,
+} from '@/shared/utils/index.js';
 
 type JWTPayload = {
   data: {
@@ -21,6 +22,13 @@ export const authorizer: APIGatewayRequestAuthorizerHandler = async (event) => {
   const token = bearerToken.replace(/^Bearer /i, '');
 
   try {
+    const { JWK_URL } = getEnvironmentVariables(
+      z.object({
+        JWK_URL: z.string().trim().min(1),
+      })
+    );
+
+    const JWKS = createRemoteJWKSet(new URL(JWK_URL));
     const {
       payload: { data },
     } = await jwtVerify<JWTPayload>(token, JWKS);
